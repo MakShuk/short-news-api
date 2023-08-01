@@ -6,7 +6,13 @@ export class AppController {
 	constructor(private readonly appService: AppService) {}
 
 	@Get()
-	getHello(): string {
-		return this.appService.getHello();
+	async getHello(): Promise<any> {
+		const html = await this.appService.getPage();
+		return html;
+	}
+
+	@Get('like')
+	getLikePost() {
+		return this.appService.getLikeNews();
 	}
 }
