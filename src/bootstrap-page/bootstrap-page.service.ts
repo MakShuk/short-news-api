@@ -24,7 +24,7 @@ export class BootstrapPageService {
         button.addEventListener("click", () => {
           const card = button.closest('.box')
           console.log(button.closest('.box').getAttribute("news-id"))
-          const url = "http://localhost:3000/api/news/" + card.getAttribute("news-id")
+          const url = "http://api.localhost:3000/news/" + card.getAttribute("news-id")
           card.style.display = 'none'
           axios.delete(url)
         });
@@ -37,7 +37,7 @@ export class BootstrapPageService {
            like.classList.toggle("fw-bolder")
      
            const card = like.closest('.box')
-           const url = "http://localhost:3000/api/news/" + card.getAttribute("news-id")
+           const url = "http://api.localhost:3000/news/" + card.getAttribute("news-id")+"?like=1"
            axios.patch(url)
         });
       });

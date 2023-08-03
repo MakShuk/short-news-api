@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
 import * as fs from 'fs';
@@ -19,7 +19,7 @@ export class NewsService {
 		return (await this.readDbFile())[id];
 	}
 
-	async update(id: string) {
+	async likeNews(id: string) {
 		const dbData: CreateNewsDto[] = await this.readDbFile();
 		const newsToUpdate = dbData.filter(item => item.id === id)[0];
 		const newArray = dbData.filter(obj => obj.id !== id);
@@ -34,6 +34,23 @@ export class NewsService {
 		const dbData: CreateNewsDto[] = await this.readDbFile();
 		const newArray = dbData.filter(obj => obj.id !== id);
 		await this.writeDbFile(newArray);
+	}
+
+	async updateNews(id: string, updateNewsDto: UpdateNewsDto) {
+		const db: CreateNewsDto[] = await this.readDbFile();
+		const newsToUpdate = db.filter(item => item.id === id)[0];
+
+		if (!newsToUpdate) {
+			throw new BadRequestException('Новости с таким ID не существует');
+		}
+
+		if (updateNewsDto.id) {
+			throw new NotFoundException('Изменять ID нельзя');
+		}
+
+		const updatedNews = Object.assign({}, newsToUpdate, updateNewsDto);
+		const newArray = db.filter(obj => obj.id !== id);
+		this.writeDbFile([updatedNews, ...newArray]);
 	}
 
 	async readDbFile(): Promise<any> {

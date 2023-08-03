@@ -1,9 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+	Controller,
+	Get,
+	Post,
+	Body,
+	Patch,
+	Param,
+	Delete,
+	ValidationPipe,
+	UsePipes,
+	Query,
+} from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
 import { UpdateNewsDto } from './dto/update-news.dto';
 
-@Controller('news')
+@Controller({ host: 'api.localhost', path: 'news' })
 export class NewsController {
 	constructor(private readonly newsService: NewsService) {}
 
@@ -23,8 +34,16 @@ export class NewsController {
 	}
 
 	@Patch(':id')
-	update(@Param('id') id: string) {
-		return this.newsService.update(id);
+	@UsePipes(ValidationPipe)
+	update(
+		@Param('id') id: string,
+		@Query() queryParams: any,
+		@Body() updateNewsDto: UpdateNewsDto,
+	): Promise<void> | string {
+		if (queryParams.like) {
+			return this.newsService.likeNews(id);
+		}
+		return this.newsService.updateNews(id, updateNewsDto);
 	}
 
 	@Delete(':id')

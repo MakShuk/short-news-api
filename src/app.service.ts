@@ -10,18 +10,6 @@ export class AppService {
 		private readonly bootstrapPageService: BootstrapPageService,
 		private readonly bootstrapCardService: BootstrapCardService,
 	) {}
-	async getHello(): Promise<any> {
-		const data = await this.readDbFile();
-		let dataBody = '';
-		data.forEach(item => {
-			const row = this.createRow(item);
-			dataBody += row;
-		});
-
-		return `<table>
-    <caption>Table</caption>
-		${dataBody}</table>`;
-	}
 
 	async readDbFile(): Promise<any> {
 		try {
@@ -45,11 +33,12 @@ export class AppService {
       `;
 	}
 
-	async getPage() {
+	async getPage(limit = 30) {
 		const cards = [];
 		const db: CreateNewsDto[] = await this.readDbFile();
-		const sort_date_db = db.sort((a, b) => b.date - a.date);
-		sort_date_db.forEach(news => {
+		const limit_db = db.slice(0, limit);
+		const sort_date_limit_db = limit_db.sort((a, b) => b.date - a.date);
+		sort_date_limit_db.forEach(news => {
 			if (news.content.length <= 1) {
 				return null;
 			}
@@ -66,12 +55,13 @@ export class AppService {
 		return this.bootstrapPageService.getHTMLPage(cards.join('</div>'));
 	}
 
-	async getLikeNews() {
+	async getLikeNews(limit = 30) {
 		const cards = [];
 		const db: CreateNewsDto[] = await this.readDbFile();
 		const like_db = db.filter(obj => obj.ratio !== 0);
-		const sort_date_like_db = like_db.sort((a, b) => b.date - a.date);
-		sort_date_like_db.forEach(news => {
+		const limit_like_db = like_db.slice(0, limit);
+		const sort_date_limit_like_db = limit_like_db.sort((a, b) => b.date - a.date);
+		sort_date_limit_like_db.forEach(news => {
 			if (news.content.length <= 1) {
 				return null;
 			}

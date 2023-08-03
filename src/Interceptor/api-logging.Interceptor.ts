@@ -11,6 +11,6 @@ export class ApiLoggingInterceptor implements NestInterceptor {
 		const now = Date.now();
 		return next
 			.handle()
-			.pipe(tap(() => console.log(`api: ${url} metod: ${method} ${Date.now() - now}ms`)));
+			.pipe(tap(() => console.log(`???: ${url} metod: ${method} ${Date.now() - now}ms`)));
 	}
 }
