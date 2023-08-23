@@ -9,6 +9,8 @@ import {
 	ValidationPipe,
 	UsePipes,
 	Query,
+	Req,
+	BadRequestException,
 } from '@nestjs/common';
 import { NewsService } from './news.service';
 import { CreateNewsDto } from './dto/create-news.dto';
@@ -34,15 +36,22 @@ export class NewsController {
 	}
 
 	@Patch(':id')
-	@UsePipes(ValidationPipe)
+	@UsePipes(new ValidationPipe({ whitelist: true }))
 	update(
 		@Param('id') id: string,
 		@Query() queryParams: any,
 		@Body() updateNewsDto: UpdateNewsDto,
+		@Req() request: Request,
 	): Promise<void> | string {
+		console.log('Patch/like Headers:', request.headers);
 		if (queryParams.like) {
 			return this.newsService.likeNews(id);
 		}
+
+		if (Object.keys(updateNewsDto).length === 0) {
+			throw new BadRequestException('Отсутствуют поля для обновления');
+		}
+		const { title, content, url, date, imageUrl, ratio } = updateNewsDto;
 		return this.newsService.updateNews(id, updateNewsDto);
 	}
 

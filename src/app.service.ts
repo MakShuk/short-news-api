@@ -1,26 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
-import { BootstrapPageService } from './bootstrap-page/bootstrap-page.service';
-import { BootstrapCardService } from './bootstrap-card/bootstrap-card.service';
+import { BootstrapPage } from './pages/bootstrap-main-page/bootstrap-main-page';
+import { BootstrapCard } from './pages/bootstrap-card/bootstrap-card';
 import { CreateNewsDto } from './news/dto/create-news.dto';
+import { BootstrapLoginForm } from './pages/bootstrap-login-page/bootstrap-login.page';
 
 @Injectable()
 export class AppService {
 	constructor(
-		private readonly bootstrapPageService: BootstrapPageService,
-		private readonly bootstrapCardService: BootstrapCardService,
+		private readonly bootstrapPage: BootstrapPage,
+		private readonly bootstrapCard: BootstrapCard,
+		private readonly bootstrapLoginForm: BootstrapLoginForm,
 	) {}
-
-	async readDbFile(): Promise<any> {
-		try {
-			const data = await fs.promises.readFile('db.json', 'utf-8');
-			const parsedData = JSON.parse(data);
-			return parsedData;
-		} catch (error) {
-			console.error('Ошибка при чтении файла db.json:', error);
-			throw error;
-		}
-	}
 
 	createRow(item: any) {
 		return `
@@ -33,26 +24,37 @@ export class AppService {
       `;
 	}
 
+	async readDbFile(): Promise<any> {
+		try {
+			const data = await fs.promises.readFile('db.json', 'utf-8');
+			const parsedData = JSON.parse(data);
+			return parsedData;
+		} catch (error) {
+			console.error('Ошибка при чтении файла db.json:', error);
+			throw error;
+		}
+	}
+
 	async getPage(limit = 30) {
 		const cards = [];
 		const db: CreateNewsDto[] = await this.readDbFile();
 		const limit_db = db.slice(0, limit);
 		const sort_date_limit_db = limit_db.sort((a, b) => b.date - a.date);
 		sort_date_limit_db.forEach(news => {
-			if (news.content.length <= 1) {
+			if (news.content?.length <= 1) {
 				return null;
 			}
-			const card = this.bootstrapCardService.createCard(
+			const card = this.bootstrapCard.createCard(
 				news.id,
 				news.imageUrl,
 				news.title,
-				news.content.join(' '),
+				news.content?.join(' '),
 				news.url,
 				news.ratio,
 			);
 			cards.push(card);
 		});
-		return this.bootstrapPageService.getHTMLPage(cards.join('</div>'));
+		return this.bootstrapPage.getHTMLPage(cards.join('</div>'));
 	}
 
 	async getLikeNews(limit = 30) {
@@ -65,7 +67,7 @@ export class AppService {
 			if (news.content.length <= 1) {
 				return null;
 			}
-			const card = this.bootstrapCardService.createCard(
+			const card = this.bootstrapCard.createCard(
 				news.id,
 				news.imageUrl,
 				news.title,
@@ -75,6 +77,10 @@ export class AppService {
 			);
 			cards.push(card);
 		});
-		return this.bootstrapPageService.getHTMLPage(cards.join('</div>'));
+		return this.bootstrapPage.getHTMLPage(cards.join('</div>'));
+	}
+
+	async getLoginPage() {
+		return this.bootstrapPage.getHTMLPage(this.bootstrapLoginForm.create());
 	}
 }

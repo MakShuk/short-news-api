@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class BootstrapCardService {
+export class BootstrapCard {
 	createCard(id: string, scr: string, title: string, content: string, href: string, ratio: number) {
 		return `<div news-id="${id}" class="box col-lg-6 col-xs-12 col-xl-4 p-1">
         <div class="card">

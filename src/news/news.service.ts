@@ -48,6 +48,8 @@ export class NewsService {
 			throw new NotFoundException('Изменять ID нельзя');
 		}
 
+		console.log('UpdateNews: ', id, updateNewsDto);
+
 		const updatedNews = Object.assign({}, newsToUpdate, updateNewsDto);
 		const newArray = db.filter(obj => obj.id !== id);
 		this.writeDbFile([updatedNews, ...newArray]);
